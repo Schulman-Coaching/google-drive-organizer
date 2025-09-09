@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Drive Inventory Tool</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #202124;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 25px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            padding: 20px;
+        }
+
+        .card-header h2 {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .success-card .card-header {
+            background: linear-gradient(135deg, #34a853, #0f9d58);
+        }
+
+        .error-card .card-header {
+            background: linear-gradient(135deg, #ea4335, #d33b2c);
+        }
+
+        .demo-section {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4285f4, #1a73e8);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1a73e8, #1557b0);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
+        }
+
+        .btn-large {
+            padding: 16px 32px;
+            font-size: 1.1rem;
+        }
+
+        .feature-list {
+            text-align: left;
+            max-width: 600px;
+            margin: 30px auto;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            font-size: 1rem;
+        }
+
+        .demo-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            text-align: center;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .stat {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #34a853;
+        }
+
+        .stat-label {
+            color: #5f6368;
+            font-size: 0.9rem;
+        }
+
+        .coming-soon {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            color: #1565c0;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .contact-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            .logo h1 {
+                font-size: 2rem;
+            }
+            .card-body {
+                padding: 20px;
+            }
+            .demo-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14,2 14,8 20,8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+                <h1>Google Drive Inventory Tool</h1>
+            </div>
+            <p class="subtitle">Scan your entire Google Drive and create a detailed inventory report</p>
+        </header>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>📊 Organize Your Google Drive</h2>
+            </div>
+            <div class="card-body">
+                <div class="demo-section">
+                    <p style="font-size: 1.1rem; margin-bottom: 30px;">
+                        Get a complete inventory of your Google Drive files and folders in minutes!
+                    </p>
+                    
+                    <div class="demo-stats">
+                        <div class="stat">
+                            <div class="stat-number">∞</div>
+                            <div class="stat-label">Files Scanned</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">2-5</div>
+                            <div class="stat-label">Minutes</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">100%</div>
+                            <div class="stat-label">Private</div>
+                        </div>
+                    </div>
+
+                    <div class="coming-soon">
+                        <h3>🚀 Coming Soon!</h3>
+                        <p>Full functionality is being finalized. The tool will scan your Drive and create downloadable CSV reports with complete file inventories.</p>
+                    </div>
+
+                    <ul class="feature-list">
+                        <li>✅ <strong>Complete Scan:</strong> Every file and folder in your Drive</li>
+                        <li>✅ <strong>Detailed Reports:</strong> Names, sizes, dates, sharing status</li>
+                        <li>✅ <strong>CSV Export:</strong> Download and analyze in Excel/Google Sheets</li>
+                        <li>✅ <strong>100% Private:</strong> Runs entirely in your browser</li>
+                        <li>✅ <strong>Free Forever:</strong> No subscriptions or hidden costs</li>
+                        <li>✅ <strong>No Installation:</strong> Works directly in any web browser</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card success-card">
+            <div class="card-header">
+                <h2>🎯 Perfect For</h2>
+            </div>
+            <div class="card-body">
+                <ul class="feature-list">
+                    <li>🧹 <strong>Spring Cleaning:</strong> Find and delete old, unused files</li>
+                    <li>💾 <strong>Storage Management:</strong> Identify large files using up space</li>
+                    <li>📋 <strong>Business Audits:</strong> Generate file inventories for compliance</li>
+                    <li>🔍 <strong>File Recovery:</strong> Locate forgotten or misplaced documents</li>
+                    <li>👥 <strong>Sharing Review:</strong> See what's shared with others</li>
+                    <li>📊 <strong>Data Analysis:</strong> Understand your Drive usage patterns</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="contact-info">
+            <h3>📧 Get Notified When Ready</h3>
+            <p>Want to be first to know when the tool goes live?</p>
+            <p style="margin-top: 10px;">
+                <strong>Contact:</strong> Schulman Coaching<br>
+                <strong>Repository:</strong> <a href="https://github.com/Schulman-Coaching/google-drive-organizer" target="_blank">github.com/Schulman-Coaching/google-drive-organizer</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Analytics or additional functionality can be added here
+        console.log('Google Drive Inventory Tool - Coming Soon!');
+        
+        // Simple visitor tracking (optional)
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'page_view', {
+                page_title: 'Google Drive Inventory Tool',
+                page_location: window.location.href
+            });
+        }
+    </script>
+</body>
+</html>
