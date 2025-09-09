@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Drive Scanner - ACTUALLY WORKS</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .btn { background: #4285f4; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        .btn:hover { background: #3367d6; }
+        .results { margin-top: 20px; padding: 20px; border: 1px solid #ddd; border-radius: 4px; }
+        .file-item { padding: 8px; border-bottom: 1px solid #eee; }
+        .download-btn { background: #34a853; margin-top: 20px; }
+        #fileList { max-height: 400px; overflow-y: auto; }
+        .progress { background: #f0f0f0; height: 20px; border-radius: 10px; margin: 20px 0; }
+        .progress-bar { background: #4285f4; height: 100%; border-radius: 10px; width: 0%; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+    <h1>🔥 Google Drive Scanner - REAL TOOL</h1>
+    
+    <div id="step1">
+        <h3>Step 1: Authorize Google Drive Access</h3>
+        <button class="btn" onclick="signIn()">Connect to Google Drive</button>
+        <p><small>This will ask for permission to read your Google Drive files.</small></p>
+    </div>
+
+    <div id="step2" style="display:none;">
+        <h3>Step 2: Scan Your Drive</h3>
+        <button class="btn" onclick="scanDrive()">Start Scanning Drive</button>
+        <div id="progress" style="display:none;">
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p id="progressText">Preparing to scan...</p>
+        </div>
+    </div>
+
+    <div id="results" class="results" style="display:none;">
+        <h3>✅ Scan Complete!</h3>
+        <p><strong>Total Files:</strong> <span id="fileCount">0</span></p>
+        <p><strong>Total Folders:</strong> <span id="folderCount">0</span></p>
+        
+        <button class="btn download-btn" onclick="downloadCSV()">Download Full Report (CSV)</button>
+        
+        <h4>File Preview (First 50 items):</h4>
+        <div id="fileList"></div>
+    </div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        let allFiles = [];
+        let isSignedIn = false;
+
+        // Initialize the Google API
+        function initClient() {
+            gapi.load('client:auth2', () => {
+                gapi.client.init({
+                    apiKey: 'AIzaSyBvw4F8NoXwJpKp-2vVvBG0fXRxvRkMT0g',
+                    clientId: '1087340982114-4a6bo4kq3hv5qcfej3j0noa8j43grk2t.apps.googleusercontent.com',
+                    discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+                    scope: 'https://www.googleapis.com/auth/drive.readonly'
+                }).then(() => {
+                    console.log('Google API initialized');
+                    const authInstance = gapi.auth2.getAuthInstance();
+                    isSignedIn = authInstance.isSignedIn.get();
+                    
+                    if (isSignedIn) {
+                        document.getElementById('step1').style.display = 'none';
+                        document.getElementById('step2').style.display = 'block';
+                    }
+                }).catch(error => {
+                    console.error('Error initializing Google API:', error);
+                    alert('Error connecting to Google. Please refresh and try again.');
+                });
+            });
+        }
+
+        function signIn() {
+            const authInstance = gapi.auth2.getAuthInstance();
+            authInstance.signIn().then(() => {
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('step2').style.display = 'block';
+                isSignedIn = true;
+            }).catch(error => {
+                console.error('Sign-in error:', error);
+                alert('Sign-in failed. Please make sure popups are enabled and try again.');
+            });
+        }
+
+        async function scanDrive() {
+            if (!isSignedIn) {
+                alert('Please sign in first');
+                return;
+            }
+
+            document.getElementById('progress').style.display = 'block';
+            allFiles = [];
+            let pageToken = '';
+            let progress = 0;
+
+            try {
+                do {
+                    updateProgress(Math.min(progress, 90), `Scanning... Found ${allFiles.length} items`);
+                    
+                    const response = await gapi.client.drive.files.list({
+                        pageSize: 1000,
+                        pageToken: pageToken || undefined,
+                        fields: 'nextPageToken, files(id, name, mimeType, size, modifiedTime, createdTime, webViewLink, parents)',
+                        q: 'trashed=false'
+                    });
+
+                    const files = response.result.files || [];
+                    allFiles = allFiles.concat(files);
+                    
+                    pageToken = response.result.nextPageToken;
+                    progress += 20;
+
+                } while (pageToken);
+
+                updateProgress(100, 'Scan complete!');
+                showResults();
+
+            } catch (error) {
+                console.error('Scan error:', error);
+                alert('Scan failed: ' + error.message);
+            }
+        }
+
+        function showResults() {
+            const files = allFiles.filter(f => f.mimeType !== 'application/vnd.google-apps.folder');
+            const folders = allFiles.filter(f => f.mimeType === 'application/vnd.google-apps.folder');
+            
+            document.getElementById('fileCount').textContent = files.length;
+            document.getElementById('folderCount').textContent = folders.length;
+            
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            allFiles.slice(0, 50).forEach(file => {
+                const isFolder = file.mimeType === 'application/vnd.google-apps.folder';
+                const size = formatSize(file.size);
+                const icon = isFolder ? '📁' : '📄';
+                
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                div.innerHTML = `
+                    <strong>${icon} ${file.name}</strong><br>
+                    <small>Type: ${isFolder ? 'Folder' : 'File'} | Size: ${size} | Modified: ${formatDate(file.modifiedTime)}</small>
+                `;
+                fileList.appendChild(div);
+            });
+
+            if (allFiles.length > 50) {
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                div.innerHTML = `<em>... and ${allFiles.length - 50} more items (see full CSV download)</em>`;
+                fileList.appendChild(div);
+            }
+            
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function downloadCSV() {
+            const headers = ['Name', 'Type', 'Size', 'Size (Bytes)', 'Modified Date', 'Created Date', 'File ID', 'Web Link'];
+            const csvContent = [headers.join(',')];
+
+            allFiles.forEach(file => {
+                const isFolder = file.mimeType === 'application/vnd.google-apps.folder';
+                const row = [
+                    `"${file.name.replace(/"/g, '""')}"`,
+                    isFolder ? 'Folder' : 'File',
+                    `"${formatSize(file.size)}"`,
+                    file.size || '0',
+                    `"${formatDate(file.modifiedTime)}"`,
+                    `"${formatDate(file.createdTime)}"`,
+                    file.id,
+                    `"${file.webViewLink || ''}"`
+                ];
+                csvContent.push(row.join(','));
+            });
+
+            const csv = csvContent.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `google-drive-inventory-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function updateProgress(percent, text) {
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressText').textContent = text;
+        }
+
+        function formatSize(bytes) {
+            if (!bytes) return '-';
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            return new Date(dateString).toLocaleDateString();
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', initClient);
+    </script>
+</body>
+</html>
