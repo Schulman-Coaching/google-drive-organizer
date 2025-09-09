@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Drive Inventory Tool</title>
+    <title>Google Drive Inventory Tool - Scan & Organize Your Drive</title>
     <style>
         * {
             box-sizing: border-box;
@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -90,11 +90,6 @@
             background: linear-gradient(135deg, #ea4335, #d33b2c);
         }
 
-        .demo-section {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
         .btn {
             display: inline-flex;
             align-items: center;
@@ -108,6 +103,7 @@
             text-decoration: none;
             transition: all 0.2s ease;
             justify-content: center;
+            margin: 5px;
         }
 
         .btn-primary {
@@ -121,40 +117,101 @@
             box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
         }
 
+        .btn-success {
+            background: linear-gradient(135deg, #34a853, #0f9d58);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #0f9d58, #0d7b48);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(15, 157, 88, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
         .btn-large {
             padding: 16px 32px;
             font-size: 1.1rem;
         }
 
-        .feature-list {
-            text-align: left;
-            max-width: 600px;
-            margin: 30px auto;
+        .progress {
+            background: #f0f0f0;
+            height: 24px;
+            border-radius: 12px;
+            margin: 20px 0;
+            overflow: hidden;
         }
 
-        .feature-list li {
-            padding: 8px 0;
-            font-size: 1rem;
-        }
-
-        .demo-stats {
+        .progress-bar {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            height: 100%;
+            border-radius: 12px;
+            width: 0%;
+            transition: width 0.3s ease;
             display: flex;
-            justify-content: space-around;
-            margin: 30px 0;
-            text-align: center;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .file-item {
+            padding: 12px;
+            border-bottom: 1px solid #e8eaed;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-icon {
+            font-size: 1.2rem;
+            min-width: 24px;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 4px;
+        }
+
+        .file-details {
+            font-size: 0.85rem;
+            color: #5f6368;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
             background: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
-        }
-
-        .stat {
-            flex: 1;
+            text-align: center;
         }
 
         .stat-number {
             font-size: 2rem;
             font-weight: bold;
             color: #34a853;
+            margin-bottom: 8px;
         }
 
         .stat-label {
@@ -162,21 +219,65 @@
             font-size: 0.9rem;
         }
 
-        .coming-soon {
-            background: #e3f2fd;
-            padding: 20px;
+        .feature-list {
+            list-style: none;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            font-size: 1rem;
+        }
+
+        .results-section {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #e8eaed;
             border-radius: 8px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
             color: #1565c0;
-            margin: 20px 0;
+            border: 1px solid #bbdefb;
+        }
+
+        .alert-warning {
+            background: #fff3e0;
+            color: #ef6c00;
+            border: 1px solid #ffcc02;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+
+        .text-center {
             text-align: center;
         }
 
-        .contact-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 30px;
-            text-align: center;
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #4285f4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
@@ -189,10 +290,13 @@
             .card-body {
                 padding: 20px;
             }
-            .demo-stats {
-                flex-direction: column;
-                gap: 15px;
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             }
+        }
+
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -208,88 +312,425 @@
                 </svg>
                 <h1>Google Drive Inventory Tool</h1>
             </div>
-            <p class="subtitle">Scan your entire Google Drive and create a detailed inventory report</p>
+            <p class="subtitle">Scan your entire Google Drive and create detailed inventory reports</p>
         </header>
 
-        <div class="card">
+        <!-- Features Overview -->
+        <div class="card" id="featuresCard">
             <div class="card-header">
-                <h2>📊 Organize Your Google Drive</h2>
+                <h2>📊 What This Tool Does</h2>
             </div>
             <div class="card-body">
-                <div class="demo-section">
-                    <p style="font-size: 1.1rem; margin-bottom: 30px;">
-                        Get a complete inventory of your Google Drive files and folders in minutes!
-                    </p>
-                    
-                    <div class="demo-stats">
-                        <div class="stat">
-                            <div class="stat-number">∞</div>
-                            <div class="stat-label">Files Scanned</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-number">2-5</div>
-                            <div class="stat-label">Minutes</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-number">100%</div>
-                            <div class="stat-label">Private</div>
-                        </div>
-                    </div>
-
-                    <div class="coming-soon">
-                        <h3>🚀 Coming Soon!</h3>
-                        <p>Full functionality is being finalized. The tool will scan your Drive and create downloadable CSV reports with complete file inventories.</p>
-                    </div>
-
-                    <ul class="feature-list">
-                        <li>✅ <strong>Complete Scan:</strong> Every file and folder in your Drive</li>
-                        <li>✅ <strong>Detailed Reports:</strong> Names, sizes, dates, sharing status</li>
-                        <li>✅ <strong>CSV Export:</strong> Download and analyze in Excel/Google Sheets</li>
-                        <li>✅ <strong>100% Private:</strong> Runs entirely in your browser</li>
-                        <li>✅ <strong>Free Forever:</strong> No subscriptions or hidden costs</li>
-                        <li>✅ <strong>No Installation:</strong> Works directly in any web browser</li>
-                    </ul>
+                <ul class="feature-list">
+                    <li>✅ <strong>Complete Scan:</strong> Every file and folder in your Google Drive</li>
+                    <li>✅ <strong>Detailed Reports:</strong> Names, sizes, dates, sharing status, and more</li>
+                    <li>✅ <strong>CSV Export:</strong> Download and analyze in Excel or Google Sheets</li>
+                    <li>✅ <strong>100% Private:</strong> Runs entirely in your browser - no data sent to servers</li>
+                    <li>✅ <strong>Free Forever:</strong> No subscriptions, accounts, or hidden costs</li>
+                    <li>✅ <strong>No Installation:</strong> Works directly in any modern web browser</li>
+                </ul>
+                
+                <div class="text-center" style="margin-top: 30px;">
+                    <button class="btn btn-primary btn-large" onclick="startProcess()">
+                        🚀 Start Scanning My Drive
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div class="card success-card">
+        <!-- Step 1: Authorization -->
+        <div class="card hidden" id="authCard">
             <div class="card-header">
-                <h2>🎯 Perfect For</h2>
+                <h2>🔐 Step 1: Authorize Google Drive Access</h2>
             </div>
             <div class="card-body">
-                <ul class="feature-list">
-                    <li>🧹 <strong>Spring Cleaning:</strong> Find and delete old, unused files</li>
-                    <li>💾 <strong>Storage Management:</strong> Identify large files using up space</li>
-                    <li>📋 <strong>Business Audits:</strong> Generate file inventories for compliance</li>
-                    <li>🔍 <strong>File Recovery:</strong> Locate forgotten or misplaced documents</li>
-                    <li>👥 <strong>Sharing Review:</strong> See what's shared with others</li>
-                    <li>📊 <strong>Data Analysis:</strong> Understand your Drive usage patterns</li>
-                </ul>
+                <div class="alert alert-info">
+                    <strong>Privacy Note:</strong> This tool requests read-only access to your Google Drive. 
+                    It cannot modify, delete, or upload any files. All processing happens in your browser.
+                </div>
+                
+                <div class="text-center">
+                    <button class="btn btn-primary btn-large" onclick="signIn()">
+                        <span class="loading-spinner hidden" id="authSpinner"></span>
+                        Connect to Google Drive
+                    </button>
+                    <p style="margin-top: 15px;"><small>You'll be redirected to Google to grant permission</small></p>
+                </div>
             </div>
         </div>
 
-        <div class="contact-info">
-            <h3>📧 Get Notified When Ready</h3>
-            <p>Want to be first to know when the tool goes live?</p>
-            <p style="margin-top: 10px;">
-                <strong>Contact:</strong> Schulman Coaching<br>
-                <strong>Repository:</strong> <a href="https://github.com/Schulman-Coaching/google-drive-organizer" target="_blank">github.com/Schulman-Coaching/google-drive-organizer</a>
-            </p>
+        <!-- Step 2: Scanning -->
+        <div class="card hidden" id="scanCard">
+            <div class="card-header">
+                <h2>🔍 Step 2: Scan Your Drive</h2>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <button class="btn btn-success btn-large" onclick="scanDrive()" id="scanButton">
+                        Start Drive Scan
+                    </button>
+                </div>
+                
+                <div id="progressContainer" class="hidden">
+                    <div class="progress">
+                        <div class="progress-bar" id="progressBar">0%</div>
+                    </div>
+                    <p id="progressText" class="text-center">Preparing to scan...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Results -->
+        <div class="card success-card hidden" id="resultsCard">
+            <div class="card-header">
+                <h2>✅ Scan Complete!</h2>
+            </div>
+            <div class="card-body">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalFiles">0</div>
+                        <div class="stat-label">Total Files</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalFolders">0</div>
+                        <div class="stat-label">Total Folders</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalSize">0 MB</div>
+                        <div class="stat-label">Total Size</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="scanTime">0s</div>
+                        <div class="stat-label">Scan Time</div>
+                    </div>
+                </div>
+
+                <div class="text-center" style="margin: 30px 0;">
+                    <button class="btn btn-success btn-large" onclick="downloadCSV()">
+                        📊 Download Full Report (CSV)
+                    </button>
+                    <button class="btn btn-primary" onclick="scanNewDrive()">
+                        🔄 Scan Another Drive
+                    </button>
+                </div>
+
+                <h3 style="margin-bottom: 15px;">📁 File Preview (First 100 items):</h3>
+                <div class="results-section" id="fileList">
+                    <!-- Files will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Handling -->
+        <div class="card error-card hidden" id="errorCard">
+            <div class="card-header">
+                <h2>❌ Error Occurred</h2>
+            </div>
+            <div class="card-body">
+                <p id="errorMessage">An unexpected error occurred.</p>
+                <div class="text-center" style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="resetTool()">
+                        🔄 Try Again
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
+    <script src="https://apis.google.com/js/api.js"></script>
     <script>
-        // Analytics or additional functionality can be added here
-        console.log('Google Drive Inventory Tool - Coming Soon!');
+        // Global variables
+        let allFiles = [];
+        let isSignedIn = false;
+        let startTime = 0;
         
-        // Simple visitor tracking (optional)
-        if (typeof gtag !== 'undefined') {
-            gtag('event', 'page_view', {
-                page_title: 'Google Drive Inventory Tool',
-                page_location: window.location.href
+        // Google API configuration
+        const API_KEY = 'AIzaSyBvw4F8NoXwJpKp-2vVvBG0fXRxvRkMT0g';
+        const CLIENT_ID = '1087340982114-4a6bo4kq3hv5qcfej3j0noa8j43grk2t.apps.googleusercontent.com';
+        const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
+        const SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
+
+        // Utility functions
+        function showCard(cardId) {
+            document.querySelectorAll('.card').forEach(card => {
+                if (card.id === 'featuresCard') return; // Keep features visible
+                card.classList.add('hidden');
+            });
+            document.getElementById(cardId).classList.remove('hidden');
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            showCard('errorCard');
+        }
+
+        function formatSize(bytes) {
+            if (!bytes || bytes === 0) return '0 B';
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
             });
         }
+
+        function getFileIcon(mimeType) {
+            if (mimeType === 'application/vnd.google-apps.folder') return '📁';
+            if (mimeType.startsWith('image/')) return '🖼️';
+            if (mimeType.startsWith('video/')) return '🎥';
+            if (mimeType.startsWith('audio/')) return '🎵';
+            if (mimeType.includes('document')) return '📄';
+            if (mimeType.includes('spreadsheet')) return '📊';
+            if (mimeType.includes('presentation')) return '📺';
+            if (mimeType.includes('pdf')) return '📕';
+            return '📄';
+        }
+
+        function calculateTotalSize(files) {
+            return files.reduce((total, file) => {
+                return total + (parseInt(file.size) || 0);
+            }, 0);
+        }
+
+        // Main workflow functions
+        function startProcess() {
+            document.getElementById('featuresCard').classList.add('hidden');
+            showCard('authCard');
+            initializeGoogleAPI();
+        }
+
+        function initializeGoogleAPI() {
+            const spinner = document.getElementById('authSpinner');
+            spinner.classList.remove('hidden');
+            
+            gapi.load('client:auth2', async () => {
+                try {
+                    await gapi.client.init({
+                        apiKey: API_KEY,
+                        clientId: CLIENT_ID,
+                        discoveryDocs: [DISCOVERY_DOC],
+                        scope: SCOPES
+                    });
+
+                    const authInstance = gapi.auth2.getAuthInstance();
+                    isSignedIn = authInstance.isSignedIn.get();
+                    
+                    spinner.classList.add('hidden');
+                    
+                    if (isSignedIn) {
+                        showCard('scanCard');
+                    }
+                } catch (error) {
+                    spinner.classList.add('hidden');
+                    console.error('Error initializing Google API:', error);
+                    showError('Failed to connect to Google API. Please refresh and try again.');
+                }
+            });
+        }
+
+        async function signIn() {
+            try {
+                const authInstance = gapi.auth2.getAuthInstance();
+                await authInstance.signIn();
+                isSignedIn = true;
+                showCard('scanCard');
+            } catch (error) {
+                console.error('Sign-in error:', error);
+                showError('Sign-in failed. Please make sure popups are enabled and try again.');
+            }
+        }
+
+        async function scanDrive() {
+            if (!isSignedIn) {
+                showError('Please sign in first');
+                return;
+            }
+
+            startTime = Date.now();
+            allFiles = [];
+            
+            document.getElementById('scanButton').disabled = true;
+            document.getElementById('progressContainer').classList.remove('hidden');
+            
+            let pageToken = '';
+            let pageCount = 0;
+            const maxPages = 50; // Safety limit
+
+            try {
+                do {
+                    pageCount++;
+                    updateProgress(Math.min((pageCount / 10) * 80, 90), 
+                        `Scanning page ${pageCount}... Found ${allFiles.length} items`);
+                    
+                    const response = await gapi.client.drive.files.list({
+                        pageSize: 1000,
+                        pageToken: pageToken || undefined,
+                        fields: 'nextPageToken, files(id, name, mimeType, size, modifiedTime, createdTime, webViewLink, parents, shared)',
+                        q: 'trashed=false'
+                    });
+
+                    const files = response.result.files || [];
+                    allFiles = allFiles.concat(files);
+                    
+                    pageToken = response.result.nextPageToken;
+                    
+                    // Safety check to prevent infinite loops
+                    if (pageCount >= maxPages) {
+                        updateProgress(95, `Reached maximum pages (${maxPages}). Processing ${allFiles.length} items...`);
+                        break;
+                    }
+
+                } while (pageToken);
+
+                updateProgress(100, 'Scan complete! Processing results...');
+                
+                setTimeout(() => {
+                    showResults();
+                }, 500);
+
+            } catch (error) {
+                console.error('Scan error:', error);
+                showError(`Scan failed: ${error.message}`);
+            }
+        }
+
+        function updateProgress(percent, text) {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            progressBar.style.width = percent + '%';
+            progressBar.textContent = Math.round(percent) + '%';
+            progressText.textContent = text;
+        }
+
+        function showResults() {
+            const scanTime = Math.round((Date.now() - startTime) / 1000);
+            const files = allFiles.filter(f => f.mimeType !== 'application/vnd.google-apps.folder');
+            const folders = allFiles.filter(f => f.mimeType === 'application/vnd.google-apps.folder');
+            const totalSize = calculateTotalSize(files);
+            
+            // Update statistics
+            document.getElementById('totalFiles').textContent = files.length.toLocaleString();
+            document.getElementById('totalFolders').textContent = folders.length.toLocaleString();
+            document.getElementById('totalSize').textContent = formatSize(totalSize);
+            document.getElementById('scanTime').textContent = scanTime + 's';
+            
+            // Show file preview
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            const previewFiles = allFiles.slice(0, 100);
+            
+            previewFiles.forEach(file => {
+                const isFolder = file.mimeType === 'application/vnd.google-apps.folder';
+                const icon = getFileIcon(file.mimeType);
+                const size = formatSize(file.size);
+                
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div class="file-icon">${icon}</div>
+                    <div class="file-info">
+                        <div class="file-name">${escapeHtml(file.name)}</div>
+                        <div class="file-details">
+                            ${isFolder ? 'Folder' : 'File'} • ${size} • Modified: ${formatDate(file.modifiedTime)}
+                            ${file.shared ? ' • <span style="color: #ea4335;">Shared</span>' : ''}
+                        </div>
+                    </div>
+                `;
+                fileList.appendChild(fileItem);
+            });
+
+            if (allFiles.length > 100) {
+                const moreItem = document.createElement('div');
+                moreItem.className = 'file-item';
+                moreItem.style.fontStyle = 'italic';
+                moreItem.style.textAlign = 'center';
+                moreItem.innerHTML = `
+                    <div style="width: 100%; text-align: center; color: #5f6368;">
+                        ... and ${(allFiles.length - 100).toLocaleString()} more items (see full CSV download)
+                    </div>
+                `;
+                fileList.appendChild(moreItem);
+            }
+            
+            showCard('resultsCard');
+        }
+
+        function downloadCSV() {
+            const headers = [
+                'Name', 'Type', 'Size (Bytes)', 'Size (Formatted)', 
+                'Modified Date', 'Created Date', 'Shared', 'File ID', 'Web Link'
+            ];
+            
+            const csvContent = [headers.join(',')];
+
+            allFiles.forEach(file => {
+                const isFolder = file.mimeType === 'application/vnd.google-apps.folder';
+                const row = [
+                    `"${(file.name || '').replace(/"/g, '""')}"`,
+                    isFolder ? 'Folder' : 'File',
+                    file.size || '0',
+                    `"${formatSize(file.size)}"`,
+                    `"${formatDate(file.modifiedTime)}"`,
+                    `"${formatDate(file.createdTime)}"`,
+                    file.shared ? 'Yes' : 'No',
+                    file.id || '',
+                    `"${file.webViewLink || ''}"`
+                ];
+                csvContent.push(row.join(','));
+            });
+
+            const csv = csvContent.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `google-drive-inventory-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function scanNewDrive() {
+            resetTool();
+            startProcess();
+        }
+
+        function resetTool() {
+            allFiles = [];
+            isSignedIn = false;
+            
+            // Reset UI
+            document.querySelectorAll('.card').forEach(card => card.classList.add('hidden'));
+            document.getElementById('featuresCard').classList.remove('hidden');
+            document.getElementById('scanButton').disabled = false;
+            document.getElementById('progressContainer').classList.add('hidden');
+            
+            // Reset progress
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            console.log('Google Drive Inventory Tool - Ready to scan!');
+        });
     </script>
 </body>
 </html>
